@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+        PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+    <title>Cadastro Processos</title>
+
+    <script type="application/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js" />
+
+    <script type="application/javascript">
+
+        $(document).ready(function() {
+
+            $("#save").click(function() {
+
+                if (parseInt($("#processoId").val())) {
+                    atualizarProcesso();
+                } else {
+                    salvarProcesso();
+                }
+
+            });
+        });
+
+        function salvarProcesso() {
+
+            var processoRepresentation = {
+                cnj: $("#cnj").val(),
+                autor: $("#autor").val(),
+                reu: $("#reu").val()
+            }
+
+            $.ajax({
+                url: 'http://localhost:8080/api/v1/processos',
+                type: 'POST',
+                dataType: 'json',
+                contentType: 'application/json',
+                complete: function (data) {
+
+                    //alert(JSON.stringify(data));
+
+                    if (data.status == 201) {
+                        alert("Processo cadastrado com sucesso!");
+                    } else {
+                        alert("O processo não foi cadastrado");
+                    }
+                    carregarProcessos();
+                },
+                data: JSON.stringify(processoRepresentation)
+            });
+
+            limparCampos();
+        }
+
+        function limparCampos() {
+            $("#processoId").val("");
+            $("#cnj").val("");
+            $("#autor").val("");
+            $("#reu").val("");
+        }
+
+        function carregarProcessos() {
+
+            $('#processos').find('tr').each(function() {
+                $(this).remove();
+            });
+
+            $.getJSON( 'http://localhost:8080/api/v1/processos', function( data, status, xhr ) {
+
+                //alert(JSON.stringify(xhr));
+
+                if (xhr.status == 204) {
+                    $("#processos").append("&lt;tr> &lt;td>Nenhum processo cadastrado&lt;/td> &lt;/tr>");
+                }
+
+                $.each( data, function( key, val ) {
+
+                    //alert(key+" "+JSON.stringify(val));
+
+                    //alert(val.id+" "+val.cnj+" "+val.autor+" "+val.reu);
+
+                    var buttonEditar = "&lt;input type=\"button\" onclick=\"editarProcesso('"+val.id+"');\" value=\"Editar\"/>";
+
+                    var buttonApagar = "&lt;input type=\"button\" onclick=\"apagarProcesso('"+val.id+"');\" value=\"Apagar\"/>";
+
+                    var tableRow = "&lt;tr> &lt;td class=\"processoId\">"+val.id+"&lt;/td>  " +
+                        "&lt;td class=\"cnj\">"+val.cnj+"&lt;/td> " +
+                        "&lt;td class=\"autor\">"+val.autor+"&lt;/td> " +
+                        "&lt;td class=\"reu\">"+val.reu+"&lt;/td>" +
+                        "&lt;td> "+buttonEditar+" &lt;/td>" +
+                        "&lt;td> "+buttonApagar+" &lt;/td>" +
+                        "  &lt;/tr>";
+
+                    $("#processos").append(tableRow);
+                });
+
+            });
+        }
+
+        function editarProcesso(processoId) {
+
+            $('#processos').find('tr').each(function() {
+                $(this).find('td.processoId').each(function() {
+                    if ($(this).text() == processoId) {
+                        return false;
+                    }})
+                $("#processoId").val(processoId);
+                $("#cnj").val($(this).find('td.cnj').text());
+                $("#autor").val($(this).find('td.autor').text());
+                $("#reu").val($(this).find('td.reu').text());
+            });
+        }
+
+        function atualizarProcesso() {
+
+            var processoAtualizado = {
+                id: $("#processoId").val(),
+                cnj: $("#cnj").val(),
+                autor: $("#autor").val(),
+                reu: $("#reu").val()
+            }
+
+            $.ajax({
+                url: 'http://localhost:8080/api/v1/processos',
+                type: 'PUT',
+                dataType: 'json',
+                contentType: 'application/json',
+                complete: function (data) {
+
+                    //alert(JSON.stringify(data));
+
+                    if (data.status == 200) {
+                        alert("Processo atualizado com sucesso!");
+                    } else {
+                        alert("O processo não foi atualizado");
+                    }
+                    carregarProcessos();
+                },
+                data: JSON.stringify(processoAtualizado)
+            });
+
+            limparCampos();
+
+        }
+
+        function apagarProcesso(processoId) {
+            $.ajax({
+                url: 'http://localhost:8080/api/v1/processos/'+processoId,
+                type: 'DELETE',
+                complete: function(data) {
+
+                    if (data.status == 200) {
+                        alert("Processo apagado")
+                    } else {
+                        alert("Processo não foi apagado")
+                    }
+                    carregarProcessos();
+                }
+            });
+        }
+
+    </script>
+
+
+</head>
+<body>
+
+    <h1>Novo Processo</h1>
+
+    <table>
+        <tr>
+            <td>CNJ</td>
+            <td><input type="text" id="cnj" size="25"/> <input type="hidden" id="processoId"/> </td>
+        </tr>
+        <tr>
+            <td>Autor</td>
+            <td><input type="text" id="autor" size="50"/></td>
+        </tr>
+        <tr>
+            <td>Reu</td>
+            <td><input type="text" id="reu" size="50"/></td>
+        </tr>
+        <tr>
+            <td colspan="2"><input type="button" onclick="limparCampos();" value="Limpar"/> &nbsp; <input type="button" id="save" value="Salvar"/></td>
+        </tr>
+    </table>
+
+    <br/><br/>
+
+    <h1>Processos Cadastrados</h1>
+
+    <table id="processos" border="1">
+        <tr><td>Nenhum processo cadastrado</td></tr>
+    </table>
+
+</body>
+</html>
