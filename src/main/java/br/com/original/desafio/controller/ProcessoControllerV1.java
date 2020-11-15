@@ -23,11 +23,6 @@ public class ProcessoControllerV1 {
     @Autowired
     private ProcessoRepository processoRepository;
 
-    @GetMapping("/test")
-    public String test() {
-        return "RestApp V1 running!!!";
-    }
-
     @GetMapping(produces = APPLICATION_JSON_VALUE)
     public ResponseEntity list() {
 
@@ -59,7 +54,7 @@ public class ProcessoControllerV1 {
         return new ResponseEntity<Processo>(new Processo(), HttpStatus.ACCEPTED);
     }
 
-    @PutMapping
+    @PutMapping()
     public ResponseEntity atualizar(@RequestBody Processo processoAtualizado) {
 
         if (processoAtualizado != null && processoAtualizado.getId() != null && processoAtualizado.getId() > 0) {
