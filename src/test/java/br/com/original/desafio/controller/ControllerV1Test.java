@@ -25,7 +25,7 @@ class ControllerV1Test {
     @Test
     public void testApp() throws Exception {
 
-        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get("http://localhost:8080/api/v1/processos/test");
+        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get("http://localhost:8080/test");
 
         MvcResult mvcResult = mockMvc.perform(requestBuilder).andReturn();
 
